@@ -93,17 +93,4 @@ public class TaskletStepConfiguration {
         return items;
     }
 
-
-    @Bean
-    public Step taskStep5() {
-        return stepBuilderFactory.get("taskStep5")
-                .tasklet((contribution, chunkContext) -> {
-                            System.out.println("taskStep4 ************ ");
-                            return RepeatStatus.FINISHED;
-                        }
-
-                )
-                .allowStartIfComplete(true)//
-                .build();
-    }
 }
