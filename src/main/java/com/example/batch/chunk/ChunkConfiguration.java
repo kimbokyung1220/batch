@@ -38,6 +38,7 @@ public class ChunkConfiguration {
     @JobScope
     public Step chunkStep1() {
         return stepBuilderFactory.get("chunkStep")
+                // <reader, writer>
                 .<String, String>chunk(10)
                 .reader(new ListItemReader<>(Arrays.asList("item1","item2","item3","item4","item5")))
                 .processor(new ItemProcessor<String, String>() {
