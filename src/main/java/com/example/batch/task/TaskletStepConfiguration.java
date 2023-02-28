@@ -10,6 +10,10 @@ import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.ArrayList;
+import java.util.List;
+
 @RequiredArgsConstructor
 @Configuration
 public class TaskletStepConfiguration {
@@ -19,22 +23,11 @@ public class TaskletStepConfiguration {
 
     @Bean
     public Job batchJob() {
-        return this.jobBuilderFactory.get("batchJob")
-                .incrementer(new RunIdIncrementer())
-                .start(taskStep1())
-                .next(taskStep2())
-                .listener(new StepExecutionListener() {
-                    @Override
-                    public void beforeStep(StepExecution stepExecution) { //사전 작업
-                        
-                    }
-
-                    @Override
-                    public ExitStatus afterStep(StepExecution stepExecution) { //사후 작업
-                        return null;
-                    }
-                })
-                .next(taskStep3())
+        return this.jobBuilderFactory.get("batchJob") // JobBuilder 를 생성하는 팩토리,  Job 의 이름을 매개변수로 받음
+                .incrementer(new RunIdIncrementer()) // JobParameter의 값을 자동으로 증가
+                .start(taskStep4()) // 처음 실행 할 step, 최초 한번 설정, 이 메서드를 실행하면 SimpleJobBuilder 반환
+//                .next(taskStep2()) // 다음에 실행 할 step, 횟수 제한 X , 모든 next()의 step이 종료되면 job 종료
+//                .next(taskStep3())
                 .build();
     }
 
@@ -66,11 +59,51 @@ public class TaskletStepConfiguration {
                     @Override
                     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
                         System.out.println("stepContribution = " + contribution + ", chunkContext = " + chunkContext);
-                        throw new RuntimeException("taskStep3 was fail");
-//                        return RepeatStatus.FINISHED;
+//                        throw new RuntimeException("taskStep3 was fail");
+                        return RepeatStatus.FINISHED;
                     }
                 })
                 .startLimit(3)
+                .build();
+    }
+
+    @Bean
+    public Step taskStep4() {
+        return stepBuilderFactory.get("taskStep4")
+                .tasklet(tasklet())
+                .build();
+    }
+
+    private Tasklet tasklet() { //tasklet으로 모두 처리
+        return (contribution, chunkContext) -> {
+            List<String> items = getItems();
+            System.out.println("items : " + items.toString());
+
+            return RepeatStatus.FINISHED;
+        };
+    }
+
+    private List<String> getItems() {
+        List<String> items = new ArrayList<>();
+
+        for (int i = 0; i < 5; i++) {
+            items.add(i + " test!");
+        }
+
+        return items;
+    }
+
+
+    @Bean
+    public Step taskStep5() {
+        return stepBuilderFactory.get("taskStep5")
+                .tasklet((contribution, chunkContext) -> {
+                            System.out.println("taskStep4 ************ ");
+                            return RepeatStatus.FINISHED;
+                        }
+
+                )
+                .allowStartIfComplete(true)//
                 .build();
     }
 }
