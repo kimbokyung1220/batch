@@ -11,6 +11,7 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.support.ListItemReader;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -26,20 +27,27 @@ public class ChunkConfiguration {
     private final StepBuilderFactory stepBuilderFactory;
 
     @Bean
-    public Job batchJob() {
-        return this.jobBuilderFactory.get("batchJob")
+    public Job batchJob1() {
+        return this.jobBuilderFactory.get("batchJob1")
                 .incrementer(new RunIdIncrementer())
                 .start(chunkStep1())
-                .next(chunkStep2())
                 .build();
     }
 
+//    @Bean
+//    public Job batchJob2() {
+//        return this.jobBuilderFactory.get("batchJob2")
+//                .incrementer(new RunIdIncrementer())
+//                .start(chunkStep2())
+//                .build();
+//    }
+
     @Bean
-    @JobScope
+//    @ConditionalOnProperty(value = "batch.job.name", havingValue = "chunkStep1", matchIfMissing = false)
     public Step chunkStep1() {
-        return stepBuilderFactory.get("chunkStep")
+        return stepBuilderFactory.get("chunkStep1")
                 // <reader, writer>
-                .<String, String>chunk(10)
+                .<String, String>chunk(5)
                 .reader(new ListItemReader<>(Arrays.asList("item1","item2","item3","item4","item5")))
                 .processor(new ItemProcessor<String, String>() {
                     @Override

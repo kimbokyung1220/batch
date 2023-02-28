@@ -36,7 +36,10 @@ spring:
             format_sql: true
         show-sql: true
 
-  # ?? ?? ?, ????? ???? ???? ??? [Spring Boot 2.7.0 ?? ??]
+#  스프링 배치 메타데이터 테이블 자동 생성 설정 [Spring Boot 2.7.0 버전 이후]
   batch:
     jdbc:
       initialize-schema: always
+
+    job:
+      names: ${job.name:NONE}
