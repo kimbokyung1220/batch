@@ -13,7 +13,7 @@ spring:
   datasource:
     hikari:
       driver-class-name: org.h2.Driver
-      url: jdbc:h2:~/chart
+      url: jdbc:h2:~/batch
       username: sa
 
 ---
@@ -30,7 +30,7 @@ spring:
 
       jpa:
         hibernate:
-          ddl-auto: create
+          ddl-auto: update
         properties:
           hibernate:
             format_sql: true

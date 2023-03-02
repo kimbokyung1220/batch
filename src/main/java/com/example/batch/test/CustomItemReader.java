@@ -1,4 +1,4 @@
-package com.example.batch.chunk;
+package com.example.batch.test;
 
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.NonTransientResourceException;

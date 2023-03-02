@@ -1,4 +1,4 @@
-package com.example.batch.chunk;
+package com.example.batch.test;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;

@@ -1,4 +1,4 @@
-package com.example.batch.chunk;
+package com.example.batch.test;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
