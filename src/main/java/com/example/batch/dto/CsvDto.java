@@ -1,49 +1,29 @@
-package com.example.batch.entity;
+package com.example.batch.dto;
 
 import lombok.*;
 
-import javax.persistence.*;
+import javax.persistence.Column;
 
-@Entity
-@Getter
 @Setter
+@Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Csv {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    @Column
+public class CsvDto {
     private String afCode;
-    @Column
     private String afNm;
-    @Column
     private String costSource;
-    @Column
     private String adType;
-    @Column
     private String campaign;
-    @Column
     private String subCampaign;
-    @Column
     private String device;
-    @Column
     private String channel;
-    @Column
     private String mediaNm;
-    @Column
     private String productNm;
-    @Column
     private String brand;
-    @Column
     private String brandNum;
-    @Column
     private String departmentNm;
-    @Column
     private String keyword;
-    @Column
     private String period;
-    @Column
     private Long impCnt;
 }

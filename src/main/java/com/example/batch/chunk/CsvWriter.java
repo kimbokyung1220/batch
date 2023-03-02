@@ -1,5 +1,6 @@
 package com.example.batch.chunk;
 
+import com.example.batch.dto.CsvDto;
 import com.example.batch.entity.Csv;
 import com.example.batch.repository.CsvRepository;
 import lombok.RequiredArgsConstructor;
