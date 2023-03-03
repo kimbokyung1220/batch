@@ -15,12 +15,17 @@ import org.springframework.batch.item.database.builder.JpaItemWriterBuilder;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
+import org.springframework.batch.item.support.CompositeItemProcessor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 
+import javax.batch.api.chunk.ItemProcessor;
 import javax.persistence.EntityManagerFactory;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Configuration
@@ -31,29 +36,38 @@ public class CsvConfiguration {
 
     //  JPA를 사용하기 위해 EntityManagerFactory를 주입받아야 함
     private final EntityManagerFactory entityManagerFactory;
+    private final CsvListener csvListener;
     private static final int chunkSize = 1000;
 
     @Bean
     public Job csvFileJob() {
         return jobBuilderFactory.get("csvFileJob")
                 .start(csvFileStep()) // 호출부에서는 null로 처리
+                .listener(csvListener)
                 .build();
     }
 
     @Bean
-//    @JobScope
+    @JobScope
     public Step csvFileStep() {
         return stepBuilderFactory.get("csvFileStep")
                 .<Csv, Csv>chunk(chunkSize)
                 .reader(csvFileReader())
                 .processor(csvFileProcessor(null))
                 .writer(csvFileWriter())
+                .listener(csvListener)
                 .build();
     }
 
+    @Bean
+    @StepScope
+    public CsvProcessor csvFileProcessor(@Value("#{jobParameters['period']}") String period) {
+        return new CsvProcessor(period);
+    }
     /**
-     * File Read
+     * CSV File Read
      */
+
     public FlatFileItemReader<Csv> csvFileReader() {
 
         return new FlatFileItemReaderBuilder<Csv>()
@@ -63,16 +77,13 @@ public class CsvConfiguration {
                 .encoding("UTF-8")
                 .delimited().delimiter(",")
                 .names("afCode", "afNm", "costSource", "adType", "campaign", "subCampaign", "device", "channel", "mediaNm", "productNm", "brand", "brandNum", "departmentNm", "keyword", "period", "impCnt")
-                .fieldSetMapper(new BeanWrapperFieldSetMapper<Csv>() {{
+                .fieldSetMapper(new BeanWrapperFieldSetMapper<>() {{
                     setTargetType(Csv.class);
                 }})
                 .build();
     }
-    @Bean
-    @StepScope
-    public CsvProcessor csvFileProcessor(@Value("#{jobParameters[period]}") String period) {
-        return new CsvProcessor(period);
-    }
+
+
 
     public JpaItemWriter<Csv> csvFileWriter() {
        return new JpaItemWriterBuilder<Csv>()
@@ -80,6 +91,4 @@ public class CsvConfiguration {
                 .build();
 
     }
-
-
 }
