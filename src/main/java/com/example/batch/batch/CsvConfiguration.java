@@ -1,5 +1,6 @@
-package com.example.batch.chunk;
+package com.example.batch.batch;
 
+import com.example.batch.batch.chunk.CsvProcessor;
 import com.example.batch.entity.Csv;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +15,6 @@ import org.springframework.batch.item.database.builder.JpaItemWriterBuilder;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
-import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,30 +36,20 @@ public class CsvConfiguration {
     @Bean
     public Job csvFileJob() {
         return jobBuilderFactory.get("csvFileJob")
-                .start(simpleStep1(null)) // 호출부에서는 null로 처리
+                .start(csvFileStep()) // 호출부에서는 null로 처리
                 .build();
     }
 
     @Bean
-    @JobScope
-    public Step simpleStep1(@Value("#{jobParameters[period]}") String period) {
-        return stepBuilderFactory.get("simpleStep1")
-                .tasklet((contribution, chunkContext) -> {
-                    log.info(">>>>> This is Step1");
-                    log.info(">>>>> requestDate = {}", period);
-                    return RepeatStatus.FINISHED;
-                })
+//    @JobScope
+    public Step csvFileStep() {
+        return stepBuilderFactory.get("csvFileStep")
+                .<Csv, Csv>chunk(chunkSize)
+                .reader(csvFileReader())
+                .processor(csvFileProcessor(null))
+                .writer(csvFileWriter())
                 .build();
     }
-//    @Bean
-//    @JobScope
-//    public Step csvFileStep(@Value("#{jobParameters[period]}") String period) {
-//        return stepBuilderFactory.get("csvFileStep")
-//                .<Csv, Csv>chunk(chunkSize)
-//                .reader(csvFileReader(null))
-//                .writer(csvFileWriter())
-//                .build();
-//    }
 
     /**
      * File Read
@@ -77,6 +67,11 @@ public class CsvConfiguration {
                     setTargetType(Csv.class);
                 }})
                 .build();
+    }
+    @Bean
+    @StepScope
+    public CsvProcessor csvFileProcessor(@Value("#{jobParameters[period]}") String period) {
+        return new CsvProcessor(period);
     }
 
     public JpaItemWriter<Csv> csvFileWriter() {

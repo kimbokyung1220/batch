@@ -1,4 +1,4 @@
-package com.example.batch.chunk;
+package com.example.batch.batch;
 
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionListener;
