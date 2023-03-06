@@ -13,12 +13,13 @@ import java.util.List;
 @Component
 public class CsvListener {
 
-    // job에서 사용하는 데이터를 보관하는 보관소
+    // job에서 사용하는 데이터를 보관하는 보관소 (K, V)
     private ExecutionContext executionContext;
+
     @BeforeJob
     public void beforeJob(JobExecution jobExecution) {
-       // executionContext = jobExecution.getExecutionContext();
-
+        executionContext = jobExecution.getExecutionContext();
+        // 데이터 추가
         executionContext.putLong("impCntSum", 0);
     }
 
@@ -26,6 +27,7 @@ public class CsvListener {
     public void beforeWrite(List<Csv> list) {
         Long sum = executionContext.getLong("impCntSum");
 
+        // todo: stream으로 변환
         for (int i = 0; i < list.size(); i++) {
             sum += list.get(i).getImpCnt();
         }
